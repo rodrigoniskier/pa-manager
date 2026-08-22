@@ -40,6 +40,7 @@ accounts:
     domain: patologiadigital.pythonanywhere.com
     password_env: PA_PATOLOGIADIGITAL_PASSWORD
     token_env: PA_PATOLOGIADIGITAL_API_TOKEN
+    has_webapp: false
 
   - id: salesbarbosachat
     label: Sales Barbosa Chat
@@ -124,4 +125,3 @@ accounts:
     domain: monografiaspn.pythonanywhere.com
     password_env: PA_MONOGRAFIASPN_PASSWORD
     token_env: PA_MONOGRAFIASPN_API_TOKEN
-
