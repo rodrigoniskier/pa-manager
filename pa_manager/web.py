@@ -32,6 +32,7 @@ STATUS_LABELS = {
     "config_error": "Credencial ausente",
     "renewal_error": "Erro de renovação",
     "offline": "Indisponível",
+    "not_applicable": "Sem web app",
 }
 RESULT_LABELS = {
     "success": "Sucesso",
@@ -115,6 +116,7 @@ async def _read_small_form(request: Request) -> Any:
         chunks.append(chunk)
     request._body = b"".join(chunks)  # type: ignore[attr-defined]
     return await request.form(max_files=10, max_fields=50, max_part_size=MAX_FORM_BYTES)
+
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
@@ -230,11 +232,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
         states = repository.get_project_states()
         rows: list[dict[str, Any]] = []
-        summary = {"active": 0, "expiring": 0, "expired": 0, "attention": 0, "unknown": 0}
+        summary = {
+            "active": 0,
+            "expiring": 0,
+            "expired": 0,
+            "attention": 0,
+            "unknown": 0,
+            "not_applicable": 0,
+        }
         for account in accounts:
             state = states.get(account.id, {})
-            project_status = state.get("project_status", ProjectStatus.UNKNOWN.value)
-            if project_status in {"active", "expiring", "expired"}:
+            project_status = (
+                ProjectStatus.NOT_APPLICABLE.value
+                if not account.has_webapp
+                else state.get("project_status", ProjectStatus.UNKNOWN.value)
+            )
+            if project_status in {"active", "expiring", "expired", "not_applicable"}:
                 summary[project_status] += 1
             elif project_status == "unknown":
                 summary["unknown"] += 1
