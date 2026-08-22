@@ -19,3 +19,4 @@ jobs:
       - run: pip install ".[dev]"
       - run: ruff check .
       - run: pytest --cov=pa_manager --cov-report=term-missing
+
