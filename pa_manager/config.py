@@ -166,6 +166,7 @@ def _validate_account(raw: dict[str, Any], index: int) -> AccountConfig:
         token_env=token_env,
         host=host,
         enabled=bool(raw.get("enabled", True)),
+        has_webapp=bool(raw.get("has_webapp", True)),
     )
 
 
