@@ -261,6 +261,15 @@ class ManagerService:
         dry_run: bool,
     ) -> AccountResult:
         credentials = self.credentials.resolve(account)
+        if not account.has_webapp:
+            return self._result(
+                account,
+                action,
+                ResultStatus.SKIPPED,
+                ProjectStatus.NOT_APPLICABLE,
+                "Conta sem web app cadastrado; esta operação não se aplica.",
+                provider="configuration",
+            )
         if action in {Action.VERIFY, Action.RENEW} and not credentials.can_login:
             health = await self._health(account)
             status = ProjectStatus.CONFIG_ERROR if health.online else ProjectStatus.OFFLINE
@@ -407,7 +416,6 @@ class ManagerService:
             message = "A renovação foi aceita; a data já estava no limite máximo disponível."
         result_status = ResultStatus.SUCCESS if outcome.changed else ResultStatus.WARNING
         if not health.online:
-            result_status = ResultStatus.WARNING
             message += " O health check posterior não confirmou disponibilidade."
         return self._result(
             account,
