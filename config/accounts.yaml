@@ -124,3 +124,4 @@ accounts:
     domain: monografiaspn.pythonanywhere.com
     password_env: PA_MONOGRAFIASPN_PASSWORD
     token_env: PA_MONOGRAFIASPN_API_TOKEN
+
