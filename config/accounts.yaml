@@ -1,0 +1,126 @@
+accounts:
+  - id: rodrigoniskier
+    label: Rodrigo Niskier
+    username: rodrigoniskier
+    domain: rodrigoniskier.pythonanywhere.com
+    password_env: PA_RODRIGONISKIER_PASSWORD
+    token_env: PA_RODRIGONISKIER_API_TOKEN
+
+  - id: rodrigobarbosa
+    label: Rodrigo Barbosa
+    username: RodrigoBarbosa
+    domain: RodrigoBarbosa.pythonanywhere.com
+    password_env: PA_RODRIGOBARBOSA_PASSWORD
+    token_env: PA_RODRIGOBARBOSA_API_TOKEN
+
+  - id: niskierrodrigo
+    label: Niskier Rodrigo
+    username: niskierrodrigo
+    domain: niskierrodrigo.pythonanywhere.com
+    password_env: PA_NISKIERRODRIGO_PASSWORD
+    token_env: PA_NISKIERRODRIGO_API_TOKEN
+
+  - id: geradorescala
+    label: Gerador de Escala
+    username: geradorescala
+    domain: geradorescala.pythonanywhere.com
+    password_env: PA_GERADORESCALA_PASSWORD
+    token_env: PA_GERADORESCALA_API_TOKEN
+
+  - id: conciliolab
+    label: ConcilioLab
+    username: conciliolab
+    domain: conciliolab.pythonanywhere.com
+    password_env: PA_CONCILIOLAB_PASSWORD
+    token_env: PA_CONCILIOLAB_API_TOKEN
+
+  - id: patologiadigital
+    label: Patologia Digital
+    username: patologiadigital
+    domain: patologiadigital.pythonanywhere.com
+    password_env: PA_PATOLOGIADIGITAL_PASSWORD
+    token_env: PA_PATOLOGIADIGITAL_API_TOKEN
+
+  - id: salesbarbosachat
+    label: Sales Barbosa Chat
+    username: salesbarbosachat
+    domain: salesbarbosachat.pythonanywhere.com
+    password_env: PA_SALESBARBOSACHAT_PASSWORD
+    token_env: PA_SALESBARBOSACHAT_API_TOKEN
+
+  - id: enamedunipe
+    label: ENAMED UNIPÊ
+    username: enamedunipe
+    domain: enamedunipe.pythonanywhere.com
+    password_env: PA_ENAMEDUNIPE_PASSWORD
+    token_env: PA_ENAMEDUNIPE_API_TOKEN
+
+  - id: consultamed
+    label: ConsultaMed
+    username: consultamed
+    domain: consultamed.pythonanywhere.com
+    password_env: PA_CONSULTAMED_PASSWORD
+    token_env: PA_CONSULTAMED_API_TOKEN
+
+  - id: gabarito
+    label: Gabarito
+    username: gabarito
+    domain: gabarito.pythonanywhere.com
+    password_env: PA_GABARITO_PASSWORD
+    token_env: PA_GABARITO_API_TOKEN
+
+  - id: gestaopti
+    label: Gestão PTI
+    username: gestaopti
+    domain: gestaopti.pythonanywhere.com
+    password_env: PA_GESTAOPTI_PASSWORD
+    token_env: PA_GESTAOPTI_API_TOKEN
+
+  - id: ajudaprof
+    label: AjudaProf
+    username: ajudaprof
+    domain: ajudaprof.pythonanywhere.com
+    password_env: PA_AJUDAPROF_PASSWORD
+    token_env: PA_AJUDAPROF_API_TOKEN
+
+  - id: secretariamed
+    label: SecretariaMed
+    username: secretariamed
+    domain: secretariamed.pythonanywhere.com
+    password_env: PA_SECRETARIAMED_PASSWORD
+    token_env: PA_SECRETARIAMED_API_TOKEN
+
+  - id: escalasdeinternato
+    label: Escalas de Internato
+    username: escalasdeinternato
+    domain: escalasdeinternato.pythonanywhere.com
+    password_env: PA_ESCALASDEINTERNATO_PASSWORD
+    token_env: PA_ESCALASDEINTERNATO_API_TOKEN
+
+  - id: mapdniskier
+    label: MAPD Niskier
+    username: mapdniskier
+    domain: mapdniskier.pythonanywhere.com
+    password_env: PA_MAPDNISKIER_PASSWORD
+    token_env: PA_MAPDNISKIER_API_TOKEN
+
+  - id: consultamedcolace
+    label: ConsultaMed Colace
+    username: consultamedcolace
+    domain: consultamedcolace.pythonanywhere.com
+    password_env: PA_CONSULTAMEDCOLACE_PASSWORD
+    token_env: PA_CONSULTAMEDCOLACE_API_TOKEN
+
+  - id: mapdcasos
+    label: MAPD Casos
+    username: mapdcasos
+    domain: mapdcasos.pythonanywhere.com
+    password_env: PA_MAPDCASOS_PASSWORD
+    token_env: PA_MAPDCASOS_API_TOKEN
+
+  - id: monografiaspn
+    label: Monografia SPN
+    username: monografiaspn
+    domain: monografiaspn.pythonanywhere.com
+    password_env: PA_MONOGRAFIASPN_PASSWORD
+    token_env: PA_MONOGRAFIASPN_API_TOKEN
