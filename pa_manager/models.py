@@ -20,6 +20,7 @@ class ProjectStatus(StrEnum):
     CONFIG_ERROR = "config_error"
     RENEWAL_ERROR = "renewal_error"
     OFFLINE = "offline"
+    NOT_APPLICABLE = "not_applicable"
 
 
 class ResultStatus(StrEnum):
@@ -55,6 +56,7 @@ class AccountConfig:
     token_env: str | None = None
     host: str = "www.pythonanywhere.com"
     enabled: bool = True
+    has_webapp: bool = True
 
     @property
     def public_url(self) -> str:
