@@ -12,7 +12,7 @@
     <div>
       <p class="eyebrow">PAINEL OPERACIONAL</p>
       <h1>Seus projetos, sob controle.</h1>
-      <p class="lead">{{ total }} web apps cadastrados em contas independentes.</p>
+      <p class="lead">{{ total - summary.not_applicable }} web apps gerenciados em {{ total }} contas independentes.</p>
     </div>
     <div class="hero-actions">
       <form action="/actions/verify-all" method="post">
@@ -33,6 +33,7 @@
     <article class="metric"><span class="metric-dot expiring"></span><div><strong>{{ summary.expiring }}</strong><span>Próximos do vencimento</span></div></article>
     <article class="metric"><span class="metric-dot expired"></span><div><strong>{{ summary.expired }}</strong><span>Expirados</span></div></article>
     <article class="metric"><span class="metric-dot attention"></span><div><strong>{{ summary.attention + summary.unknown }}</strong><span>Aguardando diagnóstico</span></div></article>
+    {% if summary.not_applicable %}<article class="metric"><span class="metric-dot"></span><div><strong>{{ summary.not_applicable }}</strong><span>Sem web app</span></div></article>{% endif %}
   </section>
 
   <section class="panel">
@@ -65,14 +66,18 @@
                 <small>{{ row.state.get('last_message', 'Sem histórico') }}</small>
               </td>
               <td class="actions-cell">
-                <details class="action-menu">
-                  <summary>Ações</summary>
-                  <div>
-                    <form action="/accounts/{{ row.account.id }}/verify" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Verificar</button></form>
-                    <form action="/accounts/{{ row.account.id }}/renew" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">{% if dry_run %}Simular renovação{% else %}Renovar{% endif %}</button></form>
-                    <form action="/accounts/{{ row.account.id }}/reload" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" {% if not reload_enabled %}disabled title="Libere com DRY_RUN=false e PAM_ALLOW_RELOAD=true"{% endif %}>Reload</button></form>
-                  </div>
-                </details>
+                {% if row.account.has_webapp %}
+                  <details class="action-menu">
+                    <summary>Ações</summary>
+                    <div>
+                      <form action="/accounts/{{ row.account.id }}/verify" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Verificar</button></form>
+                      <form action="/accounts/{{ row.account.id }}/renew" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">{% if dry_run %}Simular renovação{% else %}Renovar{% endif %}</button></form>
+                      <form action="/accounts/{{ row.account.id }}/reload" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" {% if not reload_enabled %}disabled title="Libere com DRY_RUN=false e PAM_ALLOW_RELOAD=true"{% endif %}>Reload</button></form>
+                    </div>
+                  </details>
+                {% else %}
+                  <span class="muted">Não aplicável</span>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}
