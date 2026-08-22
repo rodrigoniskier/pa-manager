@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}PA Manager{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body{% block body_attrs %}{% endblock %}>
+    {% if authenticated %}
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="PA Manager — início">
+          <span class="brand-mark">PA</span>
+          <span><strong>PA Manager</strong><small>PythonAnywhere Control Center</small></span>
+        </a>
+        <form action="/logout" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="button button-quiet" type="submit">Sair</button>
+        </form>
+      </header>
+    {% endif %}
+    <main class="shell {% block shell_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
