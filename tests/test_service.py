@@ -127,3 +127,84 @@ async def test_reload_requires_explicit_enable_flag(tmp_path: Path) -> None:
     service = ManagerService(settings, repository, [accounts()[0]])
     with pytest.raises(ActionNotAllowed, match="PAM_ALLOW_RELOAD=false"):
         await service.run_now(Action.RELOAD, account_ids=["good"])
+
+
+async def test_account_without_webapp_is_skipped(tmp_path: Path) -> None:
+    repository = Repository(tmp_path / "manager.db")
+    repository.initialize()
+    account = AccountConfig(
+        "empty",
+        "Empty",
+        "empty",
+        "empty.pythonanywhere.com",
+        "PA_EMPTY_PASSWORD",
+        has_webapp=False,
+    )
+    settings = Settings(db_path=tmp_path / "manager.db", dry_run=True)
+    service = ManagerService(
+        settings,
+        repository,
+        [account],
+        credential_resolver=CredentialResolver({"PA_EMPTY_PASSWORD": "secret"}),
+        client_factory=FakeClient,
+        health_factory=FakeHealthChecker,
+    )
+    run_id = await service.run_now(Action.RENEW, dry_run=True)
+    data = repository.get_run(run_id)
+    assert data is not None
+    assert data["results"][0]["result_status"] == "skipped"
+    assert data["results"][0]["project_status"] == "not_applicable"
+
+
+class ChangedRenewalClient(FakeClient):
+    def renew(self, *, dry_run: bool) -> RenewalOutcome:
+        before = WebAppSnapshot(
+            domain=self.account.domain,
+            expiry=date(2026, 8, 23),
+            raw_expiry="Sunday 23 August 2026",
+            days_remaining=1,
+            status=ProjectStatus.EXPIRING,
+            enabled=True,
+            has_extend_action=True,
+        )
+        after = WebAppSnapshot(
+            domain=self.account.domain,
+            expiry=date(2026, 9, 22),
+            raw_expiry="Tuesday 22 September 2026",
+            days_remaining=31,
+            status=ProjectStatus.ACTIVE,
+            enabled=True,
+            has_extend_action=True,
+        )
+        return RenewalOutcome(before, after, changed=True, reactivated=False)
+
+
+class NotFoundHealthChecker(FakeHealthChecker):
+    def check(self, url: str) -> HealthResult:
+        return HealthResult(False, 404, 10, utc_now(), final_url=url, error="HTTP 404")
+
+
+async def test_confirmed_renewal_stays_success_when_root_health_is_404(tmp_path: Path) -> None:
+    repository = Repository(tmp_path / "manager.db")
+    repository.initialize()
+    settings = Settings(
+        db_path=tmp_path / "manager.db",
+        dry_run=False,
+        allowed_real_accounts=frozenset({"good"}),
+    )
+    resolver = CredentialResolver({"PA_GOOD_PASSWORD": "secret"})
+    service = ManagerService(
+        settings,
+        repository,
+        [accounts()[0]],
+        credential_resolver=resolver,
+        client_factory=ChangedRenewalClient,
+        health_factory=NotFoundHealthChecker,
+    )
+    run_id = await service.run_now(Action.RENEW, account_ids=["good"], dry_run=False)
+    data = repository.get_run(run_id)
+    assert data is not None
+    result = data["results"][0]
+    assert result["result_status"] == "success"
+    assert result["http_status"] == 404
+    assert "health check posterior" in result["message"]
