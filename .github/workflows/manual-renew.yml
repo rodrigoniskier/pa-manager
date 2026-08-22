@@ -1,0 +1,63 @@
+name: PA Manager — operação manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Operação
+        type: choice
+        options: [verify, renew-dry-run, renew-real]
+        default: renew-dry-run
+        required: true
+      account:
+        description: "ID da conta ou all"
+        type: string
+        default: all
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pa-manager-operation
+  cancel-in-progress: false
+
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: pa-manager-production
+    env:
+      PAM_CREDENTIALS_JSON: ${{ secrets.PAM_CREDENTIALS_JSON }}
+      PAM_ALLOW_GLOBAL_RENEW: ${{ vars.PAM_ALLOW_GLOBAL_RENEW || 'false' }}
+      PAM_ALLOWED_REAL_ACCOUNTS: ${{ vars.PAM_ALLOWED_REAL_ACCOUNTS || '' }}
+      DRY_RUN: ${{ inputs.action == 'renew-real' && 'false' || 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install .
+      - name: Validar configuração
+        run: pa-manager validate-config
+      - name: Executar operação
+        env:
+          ACTION: ${{ inputs.action }}
+          ACCOUNT: ${{ inputs.account }}
+        run: |
+          run_scoped() {
+            if [ "${ACCOUNT}" = "all" ]; then
+              "$@" --all
+            else
+              "$@" --account "${ACCOUNT}"
+            fi
+          }
+          case "${ACTION}" in
+            verify) run_scoped pa-manager verify ;;
+            renew-dry-run) run_scoped pa-manager renew ;;
+            renew-real) run_scoped pa-manager renew --real ;;
+            *) echo "Ação inválida" >&2; exit 2 ;;
+          esac
