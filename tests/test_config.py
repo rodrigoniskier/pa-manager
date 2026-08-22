@@ -15,6 +15,8 @@ def test_real_account_configuration_contains_18_unique_projects() -> None:
     assert len({account.domain.lower() for account in accounts}) == 18
     assert accounts[0].domain == "rodrigoniskier.pythonanywhere.com"
     assert accounts[-1].domain == "monografiaspn.pythonanywhere.com"
+    pathology = next(account for account in accounts if account.id == "patologiadigital")
+    assert pathology.has_webapp is False
 
 
 def test_credentials_can_come_from_individual_env_or_single_json_secret() -> None:
