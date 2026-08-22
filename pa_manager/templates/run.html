@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Execução · PA Manager{% endblock %}
+{% block body_attrs %} data-run-status="{{ run.status }}"{% endblock %}
+{% block content %}
+  <a class="back-link" href="/">← Voltar ao painel</a>
+  {% if run.dry_run %}<div class="mode-banner compact"><span class="mode-icon">SIM</span><div><strong>SIMULAÇÃO</strong><br><span>Nenhuma renovação foi executada.</span></div></div>{% endif %}
+  <section class="run-header">
+    <div><p class="eyebrow">EXECUÇÃO {{ run.id[:8]|upper }}</p><h1>{{ action_labels.get(run.action, run.action) }}</h1><p class="lead">Iniciada em {{ run.started_at|date_br }}</p></div>
+    <span class="run-status run-{{ run.status }}">{{ run_labels.get(run.status, run.status) }}</span>
+  </section>
+  {% if run.status in ['queued', 'running'] %}<div class="progress-line" aria-label="Processamento em andamento"><i></i></div>{% endif %}
+  {% if run.message %}<div class="alert alert-error">{{ run.message }}</div>{% endif %}
+  <section class="metrics compact-metrics">
+    <article class="metric"><div><strong>{{ run.total }}</strong><span>Processados</span></div></article>
+    <article class="metric"><div><strong>{{ run.succeeded }}</strong><span>Sucessos</span></div></article>
+    <article class="metric"><div><strong>{{ run.warnings }}</strong><span>Atenções</span></div></article>
+    <article class="metric"><div><strong>{{ run.failed }}</strong><span>Falhas</span></div></article>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><p class="eyebrow">RELATÓRIO</p><h2>Resultado por projeto</h2></div></div>
+    {% if results %}
+      <div class="table-wrap">
+        <table><thead><tr><th>Projeto</th><th>Resultado</th><th>Antes</th><th>Depois</th><th>Health check</th><th>Detalhe</th></tr></thead>
+          <tbody>{% for item in results %}<tr>
+            <td data-label="Projeto"><strong>{{ item.domain }}</strong><small>{{ item.username }}</small></td>
+            <td data-label="Resultado"><span class="result result-{{ item.result_status }}">{{ result_labels.get(item.result_status, item.result_status) }}</span></td>
+            <td data-label="Antes">{{ item.old_expiry|date_br }}</td>
+            <td data-label="Depois">{{ item.new_expiry|date_br }}</td>
+            <td data-label="Health check">{% if item.health_online == 1 %}<span class="online">Online</span>{% elif item.health_online == 0 %}<span class="offline">Não confirmado</span>{% else %}—{% endif %}{% if item.http_status %}<small>HTTP {{ item.http_status }} · {{ item.response_ms }} ms</small>{% endif %}</td>
+            <td data-label="Detalhe">{{ item.message }}<small>via {{ item.provider }}</small></td>
+          </tr>{% endfor %}</tbody>
+        </table>
+      </div>
+    {% else %}<p class="empty">Aguardando o primeiro resultado… Esta página será atualizada automaticamente.</p>{% endif %}
+  </section>
+{% endblock %}
