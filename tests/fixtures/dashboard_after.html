@@ -1,0 +1,16 @@
+<!doctype html>
+<html><body>
+  <nav><a href="/logout/">Log out</a></nav>
+  <div id="id_demo_pythonanywhere_com">
+    <h2>demo.pythonanywhere.com</h2>
+    <p class="webapp_expiry">This web app is currently running until <strong>Tuesday 22 September 2026</strong>.</p>
+    <form method="post" action="/user/demo/webapps/demo.pythonanywhere.com/extend/">
+      <input type="hidden" name="csrfmiddlewaretoken" value="csrf-after">
+      <button type="submit">Run until 1 month from today</button>
+    </form>
+    <form method="post" action="/user/demo/webapps/demo.pythonanywhere.com/reload/">
+      <input type="hidden" name="csrfmiddlewaretoken" value="csrf-reload-after">
+      <button type="submit">Reload</button>
+    </form>
+  </div>
+</body></html>
