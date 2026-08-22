@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if flash_error %}<div class="alert alert-error" role="alert">{{ flash_error }}</div>{% endif %}
+  {% if dry_run %}
+    <div class="mode-banner" role="status">
+      <span class="mode-icon">SIM</span>
+      <div><strong>MODO DE SIMULAÇÃO</strong><br><span>Nenhuma renovação nem reload será executado.</span></div>
+    </div>
+  {% endif %}
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">PAINEL OPERACIONAL</p>
+      <h1>Seus projetos, sob controle.</h1>
+      <p class="lead">{{ total }} web apps cadastrados em contas independentes.</p>
+    </div>
+    <div class="hero-actions">
+      <form action="/actions/verify-all" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="button button-secondary" type="submit">Verificar todos</button>
+      </form>
+      <form action="/actions/renew-all" method="post" data-confirm="Confirmar a simulação de renovação para todos os projetos?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="button button-primary button-large" type="submit">
+          {% if dry_run %}Simular renovação de todos{% else %}Renovar todos{% endif %}
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Resumo dos projetos">
+    <article class="metric"><span class="metric-dot active"></span><div><strong>{{ summary.active }}</strong><span>Ativos</span></div></article>
+    <article class="metric"><span class="metric-dot expiring"></span><div><strong>{{ summary.expiring }}</strong><span>Próximos do vencimento</span></div></article>
+    <article class="metric"><span class="metric-dot expired"></span><div><strong>{{ summary.expired }}</strong><span>Expirados</span></div></article>
+    <article class="metric"><span class="metric-dot attention"></span><div><strong>{{ summary.attention + summary.unknown }}</strong><span>Aguardando diagnóstico</span></div></article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div><p class="eyebrow">PROJETOS</p><h2>Monitoramento</h2></div>
+      <span class="count-pill">{{ total }} cadastrados</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Projeto</th><th>Status</th><th>Expiração</th><th>Health check</th><th>Última operação</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td data-label="Projeto">
+                <div class="project-name"><strong>{{ row.account.label }}</strong><span>{{ row.account.username }}</span></div>
+                <a class="domain-link" href="{{ row.account.public_url }}" target="_blank" rel="noopener noreferrer">{{ row.account.domain }}</a>
+                {% if not row.configured %}<span class="tag tag-muted">credencial pendente</span>{% endif %}
+              </td>
+              <td data-label="Status"><span class="status status-{{ row.project_status }}"><i></i>{{ status_labels.get(row.project_status, row.project_status) }}</span></td>
+              <td data-label="Expiração">
+                <strong>{{ row.state.get('expiry')|date_br }}</strong>
+                {% if row.state.get('days_remaining') is not none %}<small>{{ row.state.days_remaining }} dias restantes</small>{% else %}<small>data ainda não consultada</small>{% endif %}
+              </td>
+              <td data-label="Health check">
+                {% if row.state.get('health_online') == 1 %}<span class="online">Online</span>{% elif row.state.get('health_online') == 0 %}<span class="offline">Não confirmado</span>{% else %}<span class="muted">—</span>{% endif %}
+                {% if row.state.get('http_status') %}<small>HTTP {{ row.state.http_status }} · {{ row.state.response_ms }} ms</small>{% endif %}
+              </td>
+              <td data-label="Última operação">
+                <span>{{ row.state.get('last_checked_at')|date_br }}</span>
+                <small>{{ row.state.get('last_message', 'Sem histórico') }}</small>
+              </td>
+              <td class="actions-cell">
+                <details class="action-menu">
+                  <summary>Ações</summary>
+                  <div>
+                    <form action="/accounts/{{ row.account.id }}/verify" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Verificar</button></form>
+                    <form action="/accounts/{{ row.account.id }}/renew" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">{% if dry_run %}Simular renovação{% else %}Renovar{% endif %}</button></form>
+                    <form action="/accounts/{{ row.account.id }}/reload" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" {% if not reload_enabled %}disabled title="Libere com DRY_RUN=false e PAM_ALLOW_RELOAD=true"{% endif %}>Reload</button></form>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel history-panel">
+    <div class="panel-heading"><div><p class="eyebrow">AUDITORIA</p><h2>Histórico recente</h2></div></div>
+    {% if history %}
+      <div class="history-list">
+        {% for run in history %}
+          <a href="/runs/{{ run.id }}" class="history-item">
+            <span class="history-icon history-{{ run.status }}"></span>
+            <div><strong>{{ action_labels.get(run.action, run.action) }} · {{ 'simulação' if run.dry_run else 'real' }}</strong><small>{{ run.started_at|date_br }} · {{ run.total }} processados</small></div>
+            <span>{{ run_labels.get(run.status, run.status) }} →</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}<p class="empty">O histórico será preenchido após a primeira verificação.</p>{% endif %}
+  </section>
+{% endblock %}
