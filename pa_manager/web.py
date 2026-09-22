@@ -156,7 +156,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next: Any) -> Any:
-        response = await call_next(request)
+        if request.url.path == "/readyz":
+            repository.get_project_states()
+            response = JSONResponse({"status": "ready"})
+        else:
+            response = await call_next(request)
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; img-src 'self' data:; style-src 'self'; "
             "script-src 'self'; connect-src 'self'; form-action 'self'; "
