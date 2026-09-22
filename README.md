@@ -210,20 +210,26 @@ Se o fallback visual se tornar necessário, troque o build para `Dockerfile.play
 
 ## Deploy recomendado
 
-### Railway com volume persistente
+### Railway Free + Serverless com volume persistente
 
-Railway/Render/Fly.io são mais adequados que Vercel para este caso. Vercel tem execução serverless curta, não oferece SQLite persistente local e é inconveniente para Chromium. O `railway.toml` e o `Dockerfile` já estão prontos.
+O PA Manager é adequado ao modo **Serverless** do Railway porque não mantém conexões externas, telemetria ou polling em segundo plano quando está ocioso. O SQLite permanece em volume persistente e a aplicação acorda quando o painel recebe tráfego.
 
 1. Use um repositório **privado**.
-2. Crie o serviço a partir do repositório.
-3. Adicione um volume montado em `/data`.
+2. Crie ou mantenha o serviço a partir deste repositório.
+3. Adicione **um único volume** montado em `/data` e mantenha `PAM_DB_PATH=/data/pa_manager.db`.
 4. Cadastre as variáveis de `.env` no painel da hospedagem.
 5. Defina `PAM_SECURE_COOKIES=true`.
 6. Defina `PAM_TRUSTED_HOSTS` com o hostname real, sem `https://`.
-7. Defina `PAM_TRUSTED_PROXY_HOPS=1` no Railway: o rate limit usa o endereço mais à direita acrescentado pelo único edge proxy. Deixe `0` quando houver acesso direto. Não use um valor maior sem mapear toda a cadeia e não exponha o container de modo que contorne o proxy.
-8. Mantenha exatamente uma réplica e um worker.
+7. Defina `PAM_TRUSTED_PROXY_HOPS=1` no Railway: o rate limit usa o endereço mais à direita acrescentado pelo único edge proxy.
+8. Mantenha exatamente **uma réplica e um worker**.
+9. Em **Settings > Deploy > Serverless**, habilite Serverless.
+10. Faça um novo deploy depois de habilitar Serverless; a configuração só passa a valer em containers criados depois da alteração.
 
-Faça o primeiro deploy ainda com `DRY_RUN=true`.
+O `docker-entrypoint.sh` trata o volume do Railway, que é montado como `root`: ele ajusta somente o diretório persistente e em seguida inicia o PA Manager como o usuário não privilegiado `pam`. Não é necessário executar toda a aplicação como root.
+
+No primeiro acesso depois de um período de sono pode haver atraso de cold start e, excepcionalmente, a primeira requisição pode retornar 502; recarregue a página uma vez. O banco em `/data` não é perdido quando o serviço dorme.
+
+Faça o primeiro redeploy ainda com `DRY_RUN=true` e valide `/readyz` antes de liberar renovação real.
 
 ## GitHub Actions manual
 
