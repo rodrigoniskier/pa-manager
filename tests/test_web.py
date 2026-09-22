@@ -148,3 +148,26 @@ async def test_login_rejects_oversized_form_before_parsing(tmp_path: Path) -> No
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         assert response.status_code == 413
+
+
+async def test_readyz_bypasses_host_validation_but_other_routes_do_not(tmp_path: Path) -> None:
+    config = tmp_path / "accounts.yaml"
+    make_accounts(config)
+    settings = Settings(
+        accounts_file=config,
+        db_path=tmp_path / "manager.db",
+        admin_password="long-test-password",
+        session_secret="s" * 48,
+        trusted_hosts=("testserver",),
+    )
+    transport = httpx.ASGITransport(app=create_app(settings))
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://railway-healthcheck",
+    ) as client:
+        ready = await client.get("/readyz")
+        assert ready.status_code == 200
+        assert ready.json() == {"status": "ready"}
+
+        rejected = await client.get("/login")
+        assert rejected.status_code == 400
