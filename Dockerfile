@@ -7,13 +7,21 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 COPY . /app
-RUN pip install --upgrade pip && pip install . && \
-    addgroup --system pam && adduser --system --ingroup pam pam && \
-    mkdir -p /data && chown -R pam:pam /app /data
 
-USER pam
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gosu && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --upgrade pip && \
+    pip install . && \
+    addgroup --system pam && \
+    adduser --system --ingroup pam pam && \
+    mkdir -p /data && \
+    chown -R pam:pam /app /data && \
+    chmod 0755 /app/docker-entrypoint.sh
+
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["sh", "-c", "uvicorn pa_manager.web:create_app --factory --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --no-proxy-headers"]
