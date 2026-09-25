@@ -1,5 +1,12 @@
 # PA Manager
 
+> **Status: ativo e em uso.** Projeto de automação operacional mantido recentemente para deploy serverless no Railway e gerenciamento seguro de múltiplas aplicações.
+
+### Portfolio snapshot
+
+Este projeto demonstra **automação de navegador/HTTP autenticado, segurança de credenciais, jobs concorrentes, observabilidade, testes, Docker e deploy em produção**. O diferencial é tratar uma rotina operacional real com mecanismos de segurança como dry-run, locks, validação pós-ação e fallback controlado.
+
+
 Painel pessoal para verificar, renovar e recarregar web apps gratuitos do PythonAnywhere em contas independentes. O projeto vem configurado com os 18 domínios informados, inicia obrigatoriamente em **DRY RUN** e mantém senhas e tokens fora do código, do navegador e do banco de dados.
 
 ## Decisão técnica — agosto de 2026
