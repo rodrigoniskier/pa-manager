@@ -9,6 +9,18 @@ Este projeto demonstra **automação de navegador/HTTP autenticado, segurança d
 
 Painel pessoal para verificar, renovar e recarregar web apps gratuitos do PythonAnywhere em contas independentes. O projeto vem configurado com os 18 domínios informados, inicia obrigatoriamente em **DRY RUN** e mantém senhas e tokens fora do código, do navegador e do banco de dados.
 
+## Problema, público e resultado
+
+**Problema.** Aplicações gratuitas do PythonAnywhere expiram se não forem renovadas, e renovar uma a uma, em várias contas, é repetitivo e fácil de esquecer.
+
+**Para quem.** Quem mantém várias aplicações no plano gratuito do PythonAnywhere. O README lembra que os termos do serviço prevalecem.
+
+**O que entrega.** Painel e CLI que acompanham a validade de cada aplicação, renovam pela interface autenticada confirmando a nova data e registram as execuções, com modo de simulação (`DRY_RUN`) ligado por padrão e lista de contas permitidas.
+
+**Tecnologias.** Python, FastAPI, Playwright, SQLite, Docker, Railway, GitHub Actions.
+
+**Qualidade e evidências.** 30 funções de teste automatizadas; workflow de testes; `SECURITY.md`; credenciais apenas por variáveis de ambiente.
+
 ## Decisão técnica — agosto de 2026
 
 | Alternativa | O que foi confirmado | Decisão |
